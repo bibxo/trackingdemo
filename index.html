@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Device Access Permission Demo</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+    .warning { background: #fff3f3; color: red; padding: 15px; border: 2px solid red; font-weight: bold; margin-bottom: 20px; }
+    #video { width: 100%; max-width: 400px; border: 2px solid black; margin-top: 10px; }
+    #log { margin-top: 20px; background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 0 4px #aaa; }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Full Device Access Demo</h1>
+
+  <div class="warning">
+    ⚠️ This page requests access to your **camera, microphone, and location** for educational use only. <br>
+    No data will be stored or sent anywhere. Please only continue if you understand and accept this.
+  </div>
+
+  <button onclick="startAccess()">Grant Access</button>
+
+  <video id="video" autoplay playsinline muted></video>
+
+  <div id="log">Awaiting user action...</div>
+
+  <script>
+    async function startAccess() {
+      const log = document.getElementById('log');
+
+      // Request camera & mic access
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('video').srcObject = stream;
+        log.innerHTML = "✅ Camera and microphone access granted.<br>";
+      } catch (err) {
+        log.innerHTML = "❌ Camera/microphone access denied: " + err.message;
+        return;
+      }
+
+      // Request location
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            log.innerHTML += `
+              ✅ Location access granted.<br>
+              Latitude: ${pos.coords.latitude}<br>
+              Longitude: ${pos.coords.longitude}<br>
+              Accuracy: ${pos.coords.accuracy} meters
+            `;
+          },
+          (err) => {
+            log.innerHTML += `<br>❌ Location access denied: ${err.message}`;
+          }
+        );
+      } else {
+        log.innerHTML += "<br>❌ Geolocation not supported by this browser.";
+      }
+    }
+  </script>
+
+</body>
+</html>
